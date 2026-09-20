@@ -1,0 +1,20 @@
+from __future__ import annotations
+
+from sqlalchemy import String, ForeignKey
+from sqlalchemy.orm import Mapped, mapped_column
+
+from repositories.models.BaseModel import BaseModel
+
+
+class VacancySkill(BaseModel):
+    __tablename__ = "vacancies_skills"
+
+    vacancy_id: Mapped[int] = mapped_column(
+        ForeignKey("vacancies.id", ondelete="CASCADE", onupdate="CASCADE"),
+        primary_key=True,
+    )
+
+    skill_id: Mapped[int] = mapped_column(
+        ForeignKey("skills.id", ondelete="RESTRICT", onupdate="CASCADE"),
+        primary_key=True,
+    )

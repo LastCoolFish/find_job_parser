@@ -1,0 +1,8 @@
+# PostgreSQL
+USER=db_user_name
+USER_PASSWORD=db_user_password
+HOST=localhost
+PORT=5432
+DB_NAME=FindJob
+
+
