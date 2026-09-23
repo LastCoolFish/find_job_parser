@@ -1,25 +1,17 @@
-import logging
 import re
-from typing import override, Any
+from typing import override
 
 import httpx
-import requests
 import xml.etree.ElementTree as etree
 
 from bs4 import BeautifulSoup
-from playwright.sync_api import Page
 
 from datasources.base_parsers import RequestsVacancyParser, NoAvailableDataError
-from datasources.entities.company_entity import CompanyEntity
-from datasources.entities.vacancy_entity import VacancyEntity
+from datasources.entities.CompanyEntity import CompanyEntity
+from datasources.entities.VacancyEntity import VacancyEntity
+from logging_config import get_logger
 
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
-
-handler = logging.FileHandler(f"logs/{__name__}.log", mode='w', encoding="utf-8")
-formatter = logging.Formatter("%(asctime)s | %(name)s %(funcName)s %(lineno)d | %(levelname)s %(message)s")
-handler.setFormatter(formatter)
-logger.addHandler(handler)
+logger = get_logger(__name__)
 
 
 class HabrParser(RequestsVacancyParser):
@@ -49,7 +41,7 @@ class HabrParser(RequestsVacancyParser):
 
             logger.debug(data)
             logger.info(f"Successfully")
-            return set(map(lambda xml: xml.text, data))
+            return list(map(lambda xml: xml.text, data))
 
         return []
 

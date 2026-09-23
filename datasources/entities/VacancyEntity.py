@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from datasources.entities.company_entity import CompanyEntity
+from datasources.entities.CompanyEntity import CompanyEntity
 
 
 @dataclass

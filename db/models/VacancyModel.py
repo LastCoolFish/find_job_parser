@@ -1,14 +1,12 @@
 from __future__ import annotations
 
-from sqlalchemy import String, ForeignKey, CheckConstraint
+from sqlalchemy import String, ForeignKey, CheckConstraint, UniqueConstraint
 from sqlalchemy.dialects.postgresql import MONEY
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql.sqltypes import Text, SmallInteger
 
-from datasources.entities import vacancy_entity
-from datasources.entities.vacancy_entity import VacancyEntity
-from repositories.models.BaseModel import BaseModel
-from repositories.models.CompanyModel import CompanyModel
+from db.models.BaseModel import BaseModel
+from db.models.CompanyModel import CompanyModel
 
 
 class VacancyModel(BaseModel):
@@ -19,6 +17,7 @@ class VacancyModel(BaseModel):
             "grade BETWEEN 0 AND 4",
             name="ck_vacancy_grade",
         ),
+        UniqueConstraint("platform", "platform_id", name="uq_vacancy_platform_id"),
     )
 
     job_title: Mapped[str] = mapped_column(
@@ -42,7 +41,7 @@ class VacancyModel(BaseModel):
 
     grade: Mapped[int] = mapped_column(
         SmallInteger,
-        nullable=False,
+        nullable=True,
     )
 
     format: Mapped[str] = mapped_column(

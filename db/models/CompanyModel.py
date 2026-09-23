@@ -4,7 +4,7 @@ from sqlalchemy import String, CheckConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql.sqltypes import Boolean, SmallInteger
 
-from repositories.models.BaseModel import BaseModel
+from db.models.BaseModel import BaseModel
 
 
 class CompanyModel(BaseModel):

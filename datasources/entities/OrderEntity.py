@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import datetime
 
-from datasources.entities.customer_entity import CustomerEntity
+from datasources.entities.CustomerEntity import CustomerEntity
 
 
 @dataclass

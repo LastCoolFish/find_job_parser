@@ -7,4 +7,4 @@ from dataclasses import dataclass
 class CustomerEntity:
     name: str
     href: str | None
-
+    platform: str

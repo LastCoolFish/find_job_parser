@@ -1,10 +1,11 @@
-import logging
-from abc import ABC
+from abc import ABC, abstractmethod
 
+from decouple import config
 from playwright.async_api import async_playwright, Page
 
-from datasources.entities.order_entity import OrderEntity
-from datasources.entities.vacancy_entity import VacancyEntity
+from datasources.entities.OrderEntity import OrderEntity
+from datasources.entities.VacancyEntity import VacancyEntity
+from logging_config import get_logger
 
 headers = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36'
@@ -20,15 +21,9 @@ playwright_args = [
     "--window-size=1920,1080"  # задает стартовый размер окна браузера
 ]
 
-headless = False
+headless = config("HEADLESS", default=True, cast=bool)
 
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
-
-handler = logging.FileHandler(f"logs/{__name__}.log", mode='w', encoding="utf-8")
-formatter = logging.Formatter("%(asctime)s | %(name)s %(funcName)s %(lineno)d | %(levelname)s %(message)s")
-handler.setFormatter(formatter)
-logger.addHandler(handler)
+logger = get_logger(__name__)
 
 
 class NoAvailableDataError(Exception):
@@ -40,11 +35,14 @@ class PlaywrightOrderParser(ABC):
     playwright_args = playwright_args
     headless = headless
 
+
     @classmethod
+    @abstractmethod
     async def get_orders_id(cls, page: Page) -> list[int]:
         raise NotImplementedError
 
     @classmethod
+    @abstractmethod
     async def get_order(cls, page: Page, order_id: int) -> OrderEntity:
         raise NotImplementedError
 
@@ -86,10 +84,12 @@ class PlaywrightVacancyParser(ABC):
     headless = headless
 
     @classmethod
+    @abstractmethod
     async def get_vacancies_id(cls, page: Page) -> list[int]:
         raise NotImplementedError
 
     @classmethod
+    @abstractmethod
     async def get_vacancy(cls, page: Page, vacancy_id: int) -> VacancyEntity:
         raise NotImplementedError
 
@@ -129,10 +129,12 @@ class RequestsVacancyParser(ABC):
     headers = headers
 
     @classmethod
+    @abstractmethod
     async def get_vacancies_id(cls) -> list[int]:
         raise NotImplementedError
 
     @classmethod
+    @abstractmethod
     async def get_vacancy(cls, vacancy_id: int) -> VacancyEntity:
         raise NotImplementedError
 

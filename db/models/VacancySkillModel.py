@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-from sqlalchemy import String, ForeignKey
+from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column
 
-from repositories.models.BaseModel import BaseModel
+from db.models.BaseModel import BaseModel
 
 
 class VacancySkill(BaseModel):

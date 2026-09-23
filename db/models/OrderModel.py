@@ -2,18 +2,22 @@ from __future__ import annotations
 
 from datetime import datetime
 
-from sqlalchemy import String, ForeignKey
+from sqlalchemy import String, ForeignKey, UniqueConstraint
 from sqlalchemy.dialects.postgresql import MONEY
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql.sqltypes import Text, DateTime
 
-from datasources.entities.order_entity import OrderEntity
+from datasources.entities.OrderEntity import OrderEntity
 from db.models import CustomerModel
-from repositories.models.BaseModel import BaseModel
+from db.models.BaseModel import BaseModel
 
 
 class OrderModel(BaseModel):
     __tablename__ = "orders"
+
+    __table_args__ = (
+        UniqueConstraint("platform", "platform_id", name="uq_order_platform_id"),
+    )
 
     name: Mapped[str] = mapped_column(
         String(100),
@@ -27,7 +31,7 @@ class OrderModel(BaseModel):
 
     price: Mapped[float] = mapped_column(
         MONEY,
-        nullable=False,
+        nullable=True,
     )
 
     publication_timestamp: Mapped[datetime] = mapped_column(
@@ -57,21 +61,3 @@ class OrderModel(BaseModel):
                                                back_populates="orders"
                                                )
 
-    @staticmethod
-    def fromEntity(entity: OrderEntity) -> OrderModel:
-        customer_model = CustomerModel(
-            name=entity.customer.name,
-            href=entity.customer.href,
-        )
-
-        order_model = OrderModel(
-            name=entity.name,
-            description=entity.description,
-            price=entity.price,
-            publication_timestamp=entity.publication_timestamp,
-            platform=entity.platform,
-            platform_id=entity.order_id,
-            customer=customer_model
-        )
-
-        raise order_model

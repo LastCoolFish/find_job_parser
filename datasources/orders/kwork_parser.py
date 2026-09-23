@@ -2,22 +2,15 @@ import re
 import time
 from datetime import datetime, timedelta
 
-import logging
-
 from playwright.async_api import Page, TimeoutError as PlaywrightTimeoutError
 from typing_extensions import override
 
 from datasources.base_parsers import PlaywrightOrderParser
-from datasources.entities.customer_entity import CustomerEntity
-from datasources.entities.order_entity import OrderEntity
+from datasources.entities.CustomerEntity import CustomerEntity
+from datasources.entities.OrderEntity import OrderEntity
+from logging_config import get_logger
 
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
-
-handler = logging.FileHandler(f"logs/{__name__}.log", mode='w', encoding="utf-8")
-formatter = logging.Formatter("%(asctime)s | %(name)s %(funcName)s %(lineno)d | %(levelname)s %(message)s")
-handler.setFormatter(formatter)
-logger.addHandler(handler)
+logger = get_logger(__name__)
 
 
 class KworkParser(PlaywrightOrderParser):
