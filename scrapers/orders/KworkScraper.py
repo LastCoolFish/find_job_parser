@@ -48,7 +48,7 @@ class KworkScraper(PlaywrightOrderScraper):
         want_cards = await page.locator(".want-card .wants-card__header-title a").all()
 
         # Expanding the vocabulary using new links
-        hrefs.extend(map(lambda widget: widget.get_attribute("href"), want_cards))
+        hrefs.extend([await widget.get_attribute("href") for widget in want_cards])
 
         fails = 0
         for pagen in range(2, max_page + 1):
@@ -70,7 +70,7 @@ class KworkScraper(PlaywrightOrderScraper):
             logger.info(f"The page number {pagen} loaded in {str(end_time - start_time)}s")
 
             want_cards = await page.locator(".want-card .wants-card__header-title a").all()
-            hrefs.extend(map(lambda widget: widget.get_attribute("href"), want_cards))
+            hrefs.extend([await widget.get_attribute("href") for widget in want_cards])
 
         logger.info(f"Successfully {max_page - fails}/{max_page} pages")
         return list(map(lambda h: int(h.replace("/projects/", "")), hrefs))
@@ -135,7 +135,8 @@ class KworkScraper(PlaywrightOrderScraper):
 
             customer=CustomerDTO(
                 name=(await customer.inner_text()).strip(),
-                href=await customer.get_attribute("href")
+                href=await customer.get_attribute("href"),
+                platform="kwork"
             ),
             price=int(price.replace("₽", "").replace(" ", "").strip()) if price else None,
         )

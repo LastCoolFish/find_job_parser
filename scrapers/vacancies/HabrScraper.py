@@ -42,7 +42,7 @@ class HabrScraper(RequestsVacancyScraper):
 
             logger.debug(data)
             logger.info(f"Successfully")
-            return list(map(lambda xml: xml.text, data))
+            return list(map(lambda xml: int(xml.text), data))
 
         return []
 

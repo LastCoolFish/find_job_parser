@@ -4,6 +4,9 @@
 logs/
 !logs/.gitkeep
 
+backups/
+!backups/.gitkeep
+
 test.py
 
 __pycache__/

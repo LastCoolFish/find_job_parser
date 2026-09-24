@@ -99,7 +99,7 @@ class HhScraper(PlaywrightVacancyScraper):
             skills=[await widget.inner_text() for widget in skills],
             company=CompanyDTO(
                 name=await page.locator('div[data-qa="vacancy-company__details"]').inner_text(),
-                rating=int((await rating.inner_text()).replace(",", "")) * 100 if await rating.count() == 1 else None,
+                rating=round(float((await rating.inner_text()).replace(",", ".")) * 100) if await rating.count() == 1 else None,
                 accreditation="У работодателя есть аккредитация" in accreditation
             )
 

@@ -10,7 +10,7 @@ class SkillModel(BaseModel):
     __tablename__ = "skills"
 
     name: Mapped[str] = mapped_column(
-        String(30),
+        String(150),
         nullable=False,
     )
 

@@ -82,7 +82,8 @@ class FlScraper(PlaywrightOrderScraper):
 
             customer=CustomerDTO(
                 name=await page.locator("#sidebar-content span.font-weight-bold").inner_text(),
-                href=None
+                href=None,
+                platform="fl"
             ),
             price=int((await price.inner_text()).replace("₽", "").strip()) if await price.count() > 0 else None
         )

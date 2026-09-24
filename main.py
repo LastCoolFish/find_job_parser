@@ -23,7 +23,7 @@ SERVICES: tuple[BaseService, ...] = (
 )
 
 
-async def run_pipelines() -> None:
+async def run_services() -> None:
     for service in SERVICES:
         try:
             await service.run()
@@ -37,7 +37,7 @@ async def main() -> None:
     scheduler = AsyncIOScheduler()
     # No explicit next_run_time - APScheduler fires an interval job for the first time
     # immediately on start, then every minutes after that.
-    scheduler.add_job(run_pipelines, "interval", minutes=30)
+    scheduler.add_job(run_services, "interval", minutes=30)
     scheduler.start()
 
     logger.info("Scheduler started, running every 30 minutes")

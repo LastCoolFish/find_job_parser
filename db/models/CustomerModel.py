@@ -14,7 +14,7 @@ class CustomerModel(BaseModel):
     )
 
     name: Mapped[str] = mapped_column(
-        String(50),
+        String(150),
         nullable=False,
     )
     href: Mapped[str] = mapped_column(

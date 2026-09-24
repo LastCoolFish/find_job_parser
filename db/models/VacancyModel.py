@@ -1,9 +1,8 @@
 from __future__ import annotations
 
 from sqlalchemy import String, ForeignKey, CheckConstraint, UniqueConstraint
-from sqlalchemy.dialects.postgresql import MONEY
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy.sql.sqltypes import Text, SmallInteger
+from sqlalchemy.sql.sqltypes import Text, SmallInteger, Integer
 
 from db.models.BaseModel import BaseModel
 from db.models.CompanyModel import CompanyModel
@@ -21,12 +20,12 @@ class VacancyModel(BaseModel):
     )
 
     job_title: Mapped[str] = mapped_column(
-        String(100),
+        String(255),
         nullable=False,
     )
 
-    salary: Mapped[float | None] = mapped_column(
-        MONEY
+    salary: Mapped[int | None] = mapped_column(
+        Integer
     )
 
     description: Mapped[str] = mapped_column(
@@ -34,9 +33,9 @@ class VacancyModel(BaseModel):
         nullable=False,
     )
 
-    place: Mapped[str] = mapped_column(
-        String(100),
-        nullable=False,
+    place: Mapped[str | None] = mapped_column(
+        String(255),
+        nullable=True,
     )
 
     grade: Mapped[int] = mapped_column(
@@ -44,9 +43,9 @@ class VacancyModel(BaseModel):
         nullable=True,
     )
 
-    format: Mapped[str] = mapped_column(
+    format: Mapped[str | None] = mapped_column(
         String(75),
-        nullable=False,
+        nullable=True,
     )
 
     platform: Mapped[str] = mapped_column(
