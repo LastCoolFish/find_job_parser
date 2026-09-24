@@ -1,7 +1,8 @@
 .env
 .idea
 
-logs/
+logs/*.log
+logs/*.log.*
 !logs/.gitkeep
 
 backups/
