@@ -7,7 +7,6 @@ from sqlalchemy.dialects.postgresql import MONEY
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql.sqltypes import Text, DateTime
 
-from datasources.entities.OrderEntity import OrderEntity
 from db.models import CustomerModel
 from db.models.BaseModel import BaseModel
 

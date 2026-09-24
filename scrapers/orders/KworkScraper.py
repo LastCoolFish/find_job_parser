@@ -5,32 +5,32 @@ from datetime import datetime, timedelta
 from playwright.async_api import Page, TimeoutError as PlaywrightTimeoutError
 from typing_extensions import override
 
-from datasources.base_parsers import PlaywrightOrderParser
-from datasources.entities.CustomerEntity import CustomerEntity
-from datasources.entities.OrderEntity import OrderEntity
+from scrapers.base_scraper import PlaywrightOrderScraper
+from scrapers.dto.CustomerDTO import CustomerDTO
+from scrapers.dto.OrderDTO import OrderDTO
 from logging_config import get_logger
 
 logger = get_logger(__name__)
 
 
-class KworkParser(PlaywrightOrderParser):
+class KworkScraper(PlaywrightOrderScraper):
     orders_list_url = "https://kwork.ru/projects?c=11&page={page}"
     order_url = "https://kwork.ru/projects/{order_id}/view"
 
     @classmethod
     @override
-    async def get_orders_id(cls, page: Page) -> list[int]:
+    async def get_orders_id(cls) -> list[int]:
         """
         scram: playwright
 
         Kwork loads job listing data via JavaScript
 
-        :param page: playwright.sync_api Page
         :return: list of id
         """
 
         logger.info(f"Start to get orders id")
 
+        page: Page = cls._require_page()
         hrefs = []
 
         start_time = time.perf_counter()
@@ -73,17 +73,16 @@ class KworkParser(PlaywrightOrderParser):
             hrefs.extend(map(lambda widget: widget.get_attribute("href"), want_cards))
 
         logger.info(f"Successfully {max_page - fails}/{max_page} pages")
-        return list(map(lambda h: h.replace("/projects/", ""), hrefs))
+        return list(map(lambda h: int(h.replace("/projects/", "")), hrefs))
 
     @classmethod
     @override
-    async def get_order(cls, page: Page, order_id: int) -> OrderEntity:
+    async def get_order(cls, order_id: int) -> OrderDTO:
         """
         scram: playwright
 
         Kwork loads information onto the order page using JavaScript
 
-        :param page: browser tab from playwright
         :param order_id: order id on site
         :return: order info dict
         """
@@ -112,6 +111,7 @@ class KworkParser(PlaywrightOrderParser):
         logger.info(f"Start")
         logger.debug(f"order_id: {order_id}, href: {cls.order_url.format(order_id=order_id)}")
 
+        page: Page = cls._require_page()
         start_time = time.perf_counter()
         await page.goto(cls.order_url.format(order_id=order_id))
         end_time = time.perf_counter()
@@ -125,7 +125,7 @@ class KworkParser(PlaywrightOrderParser):
 
         logger.info(f"The page (order id {order_id}) loaded in {str(end_time - start_time)}s")
 
-        order = OrderEntity(
+        order = OrderDTO(
             name=(await page.locator("h1.wants-card__header-title").inner_text()).strip(),
             description=await page.locator("div.breakwords.first-letter").inner_text(),
             publication_timestamp=publication_timestamp,
@@ -133,7 +133,7 @@ class KworkParser(PlaywrightOrderParser):
             order_id=order_id,
             platform="kwork",
 
-            customer=CustomerEntity(
+            customer=CustomerDTO(
                 name=(await customer.inner_text()).strip(),
                 href=await customer.get_attribute("href")
             ),

@@ -2,9 +2,7 @@ from sqlalchemy import select
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio.session import AsyncSession
 
-from datasources.entities.VacancyEntity import VacancyEntity
-from datasources.vacancies.habr_parser import HabrParser
-from datasources.vacancies.hh_parser import HhParser
+from scrapers.dto.VacancyDTO import VacancyDTO
 
 from db.engine import request
 
@@ -19,29 +17,14 @@ logger = get_logger(__name__)
 
 class VacancyRepository:
     # List of websites from which data is being scraped
-    sites_datasource = [HabrParser, HhParser]
-
-    @classmethod
-    async def get_vacancies(cls) -> list[VacancyEntity]:
-        """
-        Get all vacancies.
-
-        :return: list of datasources.entities.VacancyEntity
-        """
-        vacancies = []
-        for site in cls.sites_datasource:
-            vacancies.extend(await site.get_vacancies())
-
-        logger.info(f"Collected {len(vacancies)} vacancies from {len(cls.sites_datasource)} sources")
-        return vacancies
 
     @staticmethod
     @request
-    async def get_or_create_companies(entities: list[VacancyEntity], session: AsyncSession) -> dict[str, int]:
+    async def get_or_create_companies(entities: list[VacancyDTO], session: AsyncSession) -> dict[str, int]:
         """
-        When populating the VacancyEntity with data from the database, it is necessary to retrieve the company IDs or create them if they do not exist.
+        When populating the VacancyDTO with data from the database, it is necessary to retrieve the company IDs or create them if they do not exist.
 
-        :param entities: list of datasources.entities.VacancyEntity
+        :param entities: list of scrapers.dto.VacancyDTO
         :param session: sqlalchemy.ext.asyncio.AsyncSession
         :return: dict of {company.name: company.id in db}
         """
@@ -72,12 +55,12 @@ class VacancyRepository:
 
     @staticmethod
     @request
-    async def get_or_create_skills(entities: list[VacancyEntity], session: AsyncSession) -> dict[str, int]:
+    async def get_or_create_skills(entities: list[VacancyDTO], session: AsyncSession) -> dict[str, int]:
         """
         Skills are shared between vacancies and stored separately; existing skill ids are looked up,
         missing ones are created.
 
-        :param entities: list of datasources.entities.VacancyEntity
+        :param entities: list of scrapers.dto.VacancyDTO
         :param session: sqlalchemy.ext.asyncio.AsyncSession
         :return: dict of {skill.name: skill.id in db}
         """
@@ -106,19 +89,19 @@ class VacancyRepository:
     @staticmethod
     @request
     async def save_vacancies(
-            entities: list[VacancyEntity],
+            entities: list[VacancyDTO],
             company_ids: dict[str, int],
             session: AsyncSession,
     ) -> dict[tuple[str, int], int]:
         """
-        Saves the passed VacancyEntity to the database; company identifier data is required.
+        Saves the passed VacancyDTO to the database; company identifier data is required.
         Existing vacancies are left untouched - since they don't change, there's nothing to
         update, and their skill links already exist from the run that first inserted them.
 
         Only newly inserted vacancies are returned; save_vacancy_skills only needs to link
         skills for those, not for ones that were already in the database.
 
-        :param entities: list of datasources.entities.VacancyEntity
+        :param entities: list of scrapers.dto.VacancyDTO
         :param company_ids: dict of company id, key is company.name
         :param session: sqlalchemy.ext.asyncio.AsyncSession
         :return: dict of ids of newly inserted vacancies, key is tuple of vacancy.platform and vacancy.vacancy_id
@@ -156,7 +139,7 @@ class VacancyRepository:
     @staticmethod
     @request
     async def save_vacancy_skills(
-            entities: list[VacancyEntity],
+            entities: list[VacancyDTO],
             vacancy_ids: dict[tuple[str, int], int],
             skill_ids: dict[str, int],
             session: AsyncSession,
@@ -164,7 +147,7 @@ class VacancyRepository:
         """
         Links vacancies with their skills through the vacancies_skills table.
 
-        :param entities: list of datasources.entities.VacancyEntity
+        :param entities: list of scrapers.dto.VacancyDTO
         :param vacancy_ids: dict of vacancy id, key is tuple of vacancy.platform and vacancy.vacancy_id
         :param skill_ids: dict of skill id, key is skill name
         :param session: sqlalchemy.ext.asyncio.AsyncSession

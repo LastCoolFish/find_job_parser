@@ -3,31 +3,31 @@ from typing import override
 
 from playwright.async_api import Page
 
-from datasources.base_parsers import PlaywrightVacancyParser, NoAvailableDataError
-from datasources.entities.CompanyEntity import CompanyEntity
-from datasources.entities.VacancyEntity import VacancyEntity
+from scrapers.base_scraper import PlaywrightVacancyScraper, NoAvailableDataError
+from scrapers.dto.CompanyDTO import CompanyDTO
+from scrapers.dto.VacancyDTO import VacancyDTO
 from logging_config import get_logger
 
 logger = get_logger(__name__)
 
 
-class HhParser(PlaywrightVacancyParser):
+class HhScraper(PlaywrightVacancyScraper):
     vacancy_list_url = "https://hh.ru/search/vacancy?text=developer&area=1"  # text is keyword
     vacancy_url = "https://hh.ru/vacancy/{vacancy_id}"
 
     @classmethod
     @override
-    async def get_vacancies_id(cls, page: Page) -> list[int]:
+    async def get_vacancies_id(cls) -> list[int]:
         """
         scram: playwright
 
         Hh loads information onto the order page using JavaScript
 
-        :param page: playwright.sync_api Page
         :return: list of id
         """
 
         logger.info("Start to get orders id")
+        page: Page = cls._require_page()
         await page.goto(cls.vacancy_list_url)
 
         # In HTML, we search for all matches by vacancyId using re
@@ -39,13 +39,12 @@ class HhParser(PlaywrightVacancyParser):
 
     @classmethod
     @override
-    async def get_vacancy(cls, page: Page, vacancy_id: int) -> VacancyEntity:
+    async def get_vacancy(cls, vacancy_id: int) -> VacancyDTO:
         '''
         scram: playwright
 
         Hh loads information onto the order page using JavaScript
 
-        :param page: playwright.sync_api Page
         :param vacancy_id: vacancy id on site
         :return: dict with info about vacancy
         '''
@@ -53,6 +52,7 @@ class HhParser(PlaywrightVacancyParser):
         logger.debug(f"Vacancy id: {vacancy_id}, href: {cls.vacancy_url.format(vacancy_id=vacancy_id)}")
         grades = {"не требуется": 0, "1–3 года": 1, "3–6 лет": 2, "более 6 лет": 3}
 
+        page: Page = cls._require_page()
         await page.goto(cls.vacancy_url.format(vacancy_id=vacancy_id))
 
         title = page.locator('h1[data-qa="vacancy-title"] span span')
@@ -87,7 +87,7 @@ class HhParser(PlaywrightVacancyParser):
 
         work_format = page.locator('p[data-qa="work-formats-text"]')
 
-        vacancy = VacancyEntity(
+        vacancy = VacancyDTO(
             job_title=await title.inner_text(),
             salary=salary,
             description=await page.locator('div[data-qa="vacancy-description"]').inner_text(),
@@ -97,7 +97,7 @@ class HhParser(PlaywrightVacancyParser):
             platform="hh",
             vacancy_id=vacancy_id,
             skills=[await widget.inner_text() for widget in skills],
-            company=CompanyEntity(
+            company=CompanyDTO(
                 name=await page.locator('div[data-qa="vacancy-company__details"]').inner_text(),
                 rating=int((await rating.inner_text()).replace(",", "")) * 100 if await rating.count() == 1 else None,
                 accreditation="У работодателя есть аккредитация" in accreditation

@@ -1,10 +1,10 @@
 from dataclasses import dataclass
 
-from datasources.entities.CompanyEntity import CompanyEntity
+from scrapers.dto.CompanyDTO import CompanyDTO
 
 
 @dataclass
-class VacancyEntity:
+class VacancyDTO:
     job_title: str
     salary: int | None
     description: str
@@ -14,4 +14,4 @@ class VacancyEntity:
     platform: str
     vacancy_id: int
     skills: list[str]
-    company: CompanyEntity
+    company: CompanyDTO

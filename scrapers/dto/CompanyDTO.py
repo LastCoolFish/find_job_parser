@@ -2,7 +2,7 @@ from dataclasses import dataclass
 
 
 @dataclass
-class CompanyEntity:
+class CompanyDTO:
     name: str
     rating: int | None
     accreditation: bool

@@ -1,3 +1,4 @@
+import logging
 import re
 from typing import override
 
@@ -6,15 +7,15 @@ import xml.etree.ElementTree as etree
 
 from bs4 import BeautifulSoup
 
-from datasources.base_parsers import RequestsVacancyParser, NoAvailableDataError
-from datasources.entities.CompanyEntity import CompanyEntity
-from datasources.entities.VacancyEntity import VacancyEntity
+from scrapers.base_scraper import RequestsVacancyScraper, NoAvailableDataError
+from scrapers.dto.CompanyDTO import CompanyDTO
+from scrapers.dto.VacancyDTO import VacancyDTO
 from logging_config import get_logger
 
 logger = get_logger(__name__)
 
 
-class HabrParser(RequestsVacancyParser):
+class HabrScraper(RequestsVacancyScraper):
     vacancy_list_url = "https://career.habr.com/vacancies/rss?currency=RUR&sort=relevance&type=all"
     vacancy_url = "https://career.habr.com/vacancies/{vacancy_id}"
 
@@ -47,7 +48,7 @@ class HabrParser(RequestsVacancyParser):
 
     @classmethod
     @override
-    async def get_vacancy(cls, vacancy_id: int) -> VacancyEntity:
+    async def get_vacancy(cls, vacancy_id: int) -> VacancyDTO:
         """
         scram: requests, BS4
 
@@ -88,7 +89,7 @@ class HabrParser(RequestsVacancyParser):
         rating = soup.select_one("span.rating")
 
 
-        vacancy = VacancyEntity(
+        vacancy = VacancyDTO(
             job_title=soup.select_one("h1.page-title__title").text,
             salary=salary,
             description=soup.select_one("div.style-ugc").text,
@@ -98,7 +99,7 @@ class HabrParser(RequestsVacancyParser):
             platform="habr",
             vacancy_id=vacancy_id,
             skills=list(map(lambda widget: widget.text, soup.select("div.chip-without-icon__text"))),
-            company=CompanyEntity(
+            company=CompanyDTO(
                 name=soup.select_one("div.company_name").text,
                 # Extracting only the digits from the rating, resulting in a three-digit number up to 500.
                 rating=int("".join([char for char in rating.text if char.isdigit()])) if rating else None,

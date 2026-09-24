@@ -4,7 +4,7 @@ from dataclasses import dataclass
 
 
 @dataclass
-class CustomerEntity:
+class CustomerDTO:
     name: str
     href: str | None
     platform: str

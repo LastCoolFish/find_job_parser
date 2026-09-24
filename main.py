@@ -2,22 +2,33 @@ import asyncio
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
+from collectors.Collector import Collector
 from db.engine import create_tables
-from services.order_service import OrderService
-from services.vacancy_service import VacancyService
+from repositories.OrdersRepository import OrdersRepository
+from repositories.VacancyRepository import VacancyRepository
+from scrapers.orders.FlScraper import FlScraper
+from scrapers.orders.KworkScraper import KworkScraper
+from scrapers.vacancies.HabrScraper import HabrScraper
+from scrapers.vacancies.HhScraper import HhScraper
+from services.BaseService import BaseService
+from services.OrderService import OrderService
+from services.VacancyService import VacancyService
 from logging_config import get_logger
 
 logger = get_logger(__name__)
 
-PIPELINES = (OrderService.run, VacancyService.run)
+SERVICES: tuple[BaseService, ...] = (
+    OrderService(Collector([FlScraper, KworkScraper]), OrdersRepository),
+    VacancyService(Collector([HabrScraper, HhScraper]), VacancyRepository),
+)
 
 
 async def run_pipelines() -> None:
-    for pipeline in PIPELINES:
+    for service in SERVICES:
         try:
-            await pipeline()
+            await service.run()
         except Exception:
-            logger.exception(f"Pipeline {pipeline.__qualname__} failed")
+            logger.exception(f"Pipeline {type(service).__name__} failed")
 
 
 async def main() -> None:

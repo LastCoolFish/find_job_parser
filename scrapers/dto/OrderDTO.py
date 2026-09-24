@@ -3,11 +3,11 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import datetime
 
-from datasources.entities.CustomerEntity import CustomerEntity
+from scrapers.dto.CustomerDTO import CustomerDTO
 
 
 @dataclass
-class OrderEntity:
+class OrderDTO:
     name: str
     description: str
 
@@ -16,6 +16,6 @@ class OrderEntity:
 
     publication_timestamp: datetime
 
-    customer: CustomerEntity
+    customer: CustomerDTO
 
     price: int | None

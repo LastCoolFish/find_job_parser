@@ -2,9 +2,7 @@ from sqlalchemy import select
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio.session import AsyncSession
 
-from datasources.entities.OrderEntity import OrderEntity
-from datasources.orders.fl_parser import FlParser
-from datasources.orders.kwork_parser import KworkParser
+from scrapers.dto.OrderDTO import OrderDTO
 
 from db.engine import request
 
@@ -16,30 +14,13 @@ logger = get_logger(__name__)
 
 
 class OrdersRepository:
-    # List of websites from which data is being scraped
-    sites_datasource = [FlParser, KworkParser]
-
-    @classmethod
-    async def get_orders(cls) -> list[OrderEntity]:
-        """
-        Get all orders.
-
-        :return: list of db.models.OrderEntity
-        """
-        orders = []
-        for site in cls.sites_datasource:
-            orders.extend(await site.get_orders())
-
-        logger.info(f"Collected {len(orders)} orders from {len(cls.sites_datasource)} sources")
-        return orders
-
     @staticmethod
     @request
-    async def get_or_create_customers(entities: list[OrderEntity], session: AsyncSession) -> dict[tuple[str, str], int]:
+    async def get_or_create_customers(entities: list[OrderDTO], session: AsyncSession) -> dict[tuple[str, str], int]:
         """
-        When populating the CustomerEntity with data from the database, it is necessary to retrieve the customer IDs or create them if they do not exist.
+        When populating the CustomerDTO with data from the database, it is necessary to retrieve the customer IDs or create them if they do not exist.
 
-        :param entities: list of datasourses.entities.OrderEntity
+        :param entities: list of scrapers.dto.OrderDTO
         :param session: sqlalchemy.ext.asyncio.AsyncSession
         :return: dict  of {(customer.name, customer.platform): customer.id in db}
         """
@@ -75,14 +56,14 @@ class OrdersRepository:
     @staticmethod
     @request
     async def save_orders(
-            entities: list[OrderEntity],
+            entities: list[OrderDTO],
             customer_ids: dict[tuple[str, str], int],
             session: AsyncSession,
     ) -> None:
         """
-        Saves the passed OrderEntity to the database; customer identifier data is required.
+        Saves the passed OrderDTO to the database; customer identifier data is required.
 
-        :param entities: list of db.models.OrderEntity
+        :param entities: list of scrapers.dto.OrderDTO
         :param customer_ids: dict of customer id, key is tuple of customer.name and customer.platform
         :param session: sqlalchemy.ext.asyncio.AsyncSession
         :return: None
@@ -90,7 +71,7 @@ class OrdersRepository:
 
         logger.info(f"Saving {len(entities)} orders")
 
-        # OrderEntity are collected into a single model with all the data
+        # OrderDTO are collected into a single model with all the data
         rows = [
             {
                 "name": entity.name,

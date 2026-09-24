@@ -26,7 +26,7 @@ def request(func):
                 return result
 
             except Exception as e:
-                logger.error(f"Transaction failed in {func.__qualname__}, rolling back: {e}")
+                logger.error(f"Rolling back: {e}")
                 await session.rollback()
                 raise
 

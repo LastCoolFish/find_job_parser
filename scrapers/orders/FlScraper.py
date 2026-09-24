@@ -7,27 +7,26 @@ from typing_extensions import override
 
 import xml.etree.ElementTree as etree
 
-from datasources.base_parsers import PlaywrightOrderParser
-from datasources.entities.CustomerEntity import CustomerEntity
-from datasources.entities.OrderEntity import OrderEntity
+from scrapers.base_scraper import PlaywrightOrderScraper
+from scrapers.dto.CustomerDTO import CustomerDTO
+from scrapers.dto.OrderDTO import OrderDTO
 from logging_config import get_logger
 
 logger = get_logger(__name__)
 
 
-class FlParser(PlaywrightOrderParser):
+class FlScraper(PlaywrightOrderScraper):
     orders_list_url = "https://www.fl.ru/rss/?category=5"
     order_url = "https://www.fl.ru/projects/{order_id}"
 
     @classmethod
     @override
-    async def get_orders_id(cls, page: Page) -> list[int]:
+    async def get_orders_id(cls) -> list[int]:
         """
         rss
 
         Fl allows you to retrieve order listing data in XML format
 
-        :param page: playwright.sync_api Page
         :return: list of id
         """
         logger.info("Start to get orders id")
@@ -51,18 +50,18 @@ class FlParser(PlaywrightOrderParser):
 
     @classmethod
     @override
-    async def get_order(cls, page: Page, order_id: int) -> OrderEntity:
+    async def get_order(cls, order_id: int) -> OrderDTO:
         """
         scram: playwright
 
         Fl loads information onto the order page using JavaScript
 
-        :param page: playwright.sync_api Page
         :param order_id: int
         :return: dict["name": str, "description": str, "customers": dict["name": str, "href": None], "price": int, "link": str]
         """
         logger.info("Start to get order info")
         logger.debug(f"Order id: {order_id}")
+        page: Page = cls._require_page()
         await page.goto(cls.order_url.format(order_id=order_id))
 
         price = page.locator("span").filter(has=page.locator("fl-rub"))
@@ -73,7 +72,7 @@ class FlParser(PlaywrightOrderParser):
         publication_timestamp = datetime.strptime(publication_timestamp[:30], "Опубликован %d.%m.%Y в %H:%M")
 
 
-        order = OrderEntity(
+        order = OrderDTO(
             name=(await page.locator("h1").inner_text()).strip(),
             description=await page.locator(f"#projectp{order_id}").inner_text(),
             publication_timestamp=publication_timestamp,
@@ -81,7 +80,7 @@ class FlParser(PlaywrightOrderParser):
             order_id=order_id,
             platform="fl",
 
-            customer=CustomerEntity(
+            customer=CustomerDTO(
                 name=await page.locator("#sidebar-content span.font-weight-bold").inner_text(),
                 href=None
             ),
