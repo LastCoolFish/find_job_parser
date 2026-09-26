@@ -13,6 +13,7 @@ class OrderDTO:
 
     order_id: int
     platform: str
+    href: str
 
     publication_timestamp: datetime
 

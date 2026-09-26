@@ -4,8 +4,7 @@ from sqlalchemy import String, ForeignKey, CheckConstraint, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql.sqltypes import Text, SmallInteger, Integer
 
-from db.models.BaseModel import BaseModel
-from db.models.CompanyModel import CompanyModel
+from db.models.BaseModels import BaseModel
 
 
 class VacancyModel(BaseModel):
@@ -54,6 +53,11 @@ class VacancyModel(BaseModel):
     )
 
     platform_id: Mapped[int] = mapped_column(
+        nullable=False,
+    )
+
+    site_href: Mapped[str] = mapped_column(
+        String(255),
         nullable=False,
     )
 

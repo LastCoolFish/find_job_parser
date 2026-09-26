@@ -9,7 +9,7 @@ from db.engine import request
 from db.models.CompanyModel import CompanyModel
 from db.models.SkillModel import SkillModel
 from db.models.VacancyModel import VacancyModel
-from db.models.VacancySkillModel import VacancySkill
+from db.models.VacancySkillModel import VacancySkillModel
 from logging_config import get_logger
 
 logger = get_logger(__name__)
@@ -119,6 +119,7 @@ class VacancyRepository:
                 "format": entity.format,
                 "platform": entity.platform,
                 "platform_id": entity.vacancy_id,
+                "site_href": entity.href,
                 "company_id": company_ids[entity.company.name],
             }
             for entity in entities
@@ -170,7 +171,7 @@ class VacancyRepository:
         logger.info(f"Saving {len(rows)} vacancy-skill links")
 
         # Inserting all vacancy-skill links in a single transaction
-        stmt = insert(VacancySkill).values(rows)
+        stmt = insert(VacancySkillModel).values(rows)
         stmt = stmt.on_conflict_do_nothing(
             index_elements=["vacancy_id", "skill_id"]
         )

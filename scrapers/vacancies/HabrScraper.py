@@ -98,6 +98,7 @@ class HabrScraper(RequestsVacancyScraper):
             format="Можно удаленно" if soup.select_one("svg.svg-icon--icon-format") else "На месте работадателя",
             platform="habr",
             vacancy_id=vacancy_id,
+            href=cls.vacancy_url.format(vacancy_id=vacancy_id),
             skills=list(map(lambda widget: widget.text, soup.select("div.chip-without-icon__text"))),
             company=CompanyDTO(
                 name=soup.select_one("div.company_name").text,

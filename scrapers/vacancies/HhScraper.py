@@ -96,6 +96,7 @@ class HhScraper(PlaywrightVacancyScraper):
             format=(await work_format.inner_text()).replace("Формат работы: ", "") if await work_format.count() == 1 else None,
             platform="hh",
             vacancy_id=vacancy_id,
+            href=cls.vacancy_url.format(vacancy_id=vacancy_id),
             skills=[await widget.inner_text() for widget in skills],
             company=CompanyDTO(
                 name=await page.locator('div[data-qa="vacancy-company__details"]').inner_text(),

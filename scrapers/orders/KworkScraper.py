@@ -132,6 +132,7 @@ class KworkScraper(PlaywrightOrderScraper):
 
             order_id=order_id,
             platform="kwork",
+            href=cls.order_url.format(order_id=order_id),
 
             customer=CustomerDTO(
                 name=(await customer.inner_text()).strip(),

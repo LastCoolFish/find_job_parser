@@ -3,7 +3,6 @@ import asyncio
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
 from collectors.Collector import Collector
-from db.engine import create_tables
 from repositories.OrdersRepository import OrdersRepository
 from repositories.VacancyRepository import VacancyRepository
 from scrapers.orders.FlScraper import FlScraper
@@ -32,8 +31,6 @@ async def run_services() -> None:
 
 
 async def main() -> None:
-    await create_tables()
-
     scheduler = AsyncIOScheduler()
     # No explicit next_run_time - APScheduler fires an interval job for the first time
     # immediately on start, then every minutes after that.

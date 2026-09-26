@@ -80,6 +80,7 @@ class OrdersRepository:
                 "publication_timestamp": entity.publication_timestamp,
                 "platform": entity.platform,
                 "platform_id": entity.order_id,
+                "site_href": entity.href,
                 "customer_id": customer_ids[(entity.customer.name, entity.customer.platform)],
             }
             for entity in entities

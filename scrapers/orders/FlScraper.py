@@ -79,6 +79,7 @@ class FlScraper(PlaywrightOrderScraper):
 
             order_id=order_id,
             platform="fl",
+            href=cls.order_url.format(order_id=order_id),
 
             customer=CustomerDTO(
                 name=await page.locator("#sidebar-content span.font-weight-bold").inner_text(),

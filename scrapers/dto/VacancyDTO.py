@@ -13,5 +13,6 @@ class VacancyDTO:
     format: str | None
     platform: str
     vacancy_id: int
+    href: str
     skills: list[str]
     company: CompanyDTO
