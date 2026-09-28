@@ -1,5 +1,7 @@
 import logging
 from datetime import datetime
+from typing import ClassVar
+
 import httpx
 
 from playwright.async_api import Page
@@ -16,6 +18,7 @@ logger = get_logger(__name__)
 
 
 class FlScraper(PlaywrightOrderScraper):
+    platform: ClassVar[str] = "fl"
     orders_list_url = "https://www.fl.ru/rss/?category=5"
     order_url = "https://www.fl.ru/projects/{order_id}"
 
@@ -78,13 +81,13 @@ class FlScraper(PlaywrightOrderScraper):
             publication_timestamp=publication_timestamp,
 
             order_id=order_id,
-            platform="fl",
+            platform=cls.platform,
             href=cls.order_url.format(order_id=order_id),
 
             customer=CustomerDTO(
                 name=await page.locator("#sidebar-content span.font-weight-bold").inner_text(),
                 href=None,
-                platform="fl"
+                platform=cls.platform
             ),
             price=int((await price.inner_text()).replace("₽", "").strip()) if await price.count() > 0 else None
         )

@@ -1,6 +1,6 @@
 import logging
 import re
-from typing import override
+from typing import ClassVar, override
 
 import httpx
 import xml.etree.ElementTree as etree
@@ -16,6 +16,7 @@ logger = get_logger(__name__)
 
 
 class HabrScraper(RequestsVacancyScraper):
+    platform: ClassVar[str] = "habr"
     vacancy_list_url = "https://career.habr.com/vacancies/rss?currency=RUR&sort=relevance&type=all"
     vacancy_url = "https://career.habr.com/vacancies/{vacancy_id}"
 
@@ -96,7 +97,7 @@ class HabrScraper(RequestsVacancyScraper):
             place=place[0].parent.parent.text if place else None,
             grade=grades[grade.parent.parent.text] if grade else None,
             format="Можно удаленно" if soup.select_one("svg.svg-icon--icon-format") else "На месте работадателя",
-            platform="habr",
+            platform=cls.platform,
             vacancy_id=vacancy_id,
             href=cls.vacancy_url.format(vacancy_id=vacancy_id),
             skills=list(map(lambda widget: widget.text, soup.select("div.chip-without-icon__text"))),

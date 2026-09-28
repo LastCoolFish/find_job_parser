@@ -33,6 +33,8 @@ class NoAvailableDataError(Exception):
 
 
 class Scraper(ABC):
+    platform: ClassVar[str]
+
     @classmethod
     @abstractmethod
     async def _get_ids(cls) -> list:
@@ -44,13 +46,14 @@ class Scraper(ABC):
         ...
 
     @classmethod
-    async def _get_items(cls) -> list:
+    async def _get_items(cls, existing_ids: set[int]) -> list:
         items = []
 
         ids = await cls._get_ids()
-        logger.debug(f"Ids: {ids}")
+        new_ids = [item_id for item_id in ids if item_id not in existing_ids]
+        logger.debug(f"Ids: {len(new_ids)} new out of {len(ids)} total")
 
-        for item_id in ids:
+        for item_id in new_ids:
             try:
                 items.append(await cls._get_item(item_id))
             except Exception as e:
@@ -61,8 +64,8 @@ class Scraper(ABC):
         return items
 
     @classmethod
-    async def collect(cls) -> list:
-        return await cls._get_items()
+    async def collect(cls, existing_ids: set[int]) -> list:
+        return await cls._get_items(existing_ids)
 
 
 class PlaywrightScraperMixin:
@@ -113,9 +116,9 @@ class PlaywrightOrderScraper(Scraper, PlaywrightScraperMixin, ABC):
         return await cls.get_order(item_id)
 
     @classmethod
-    async def collect(cls) -> list[OrderDTO]:
+    async def collect(cls, existing_ids: set[int]) -> list[OrderDTO]:
         async with cls._browser_session():
-            return await cls._get_items()
+            return await cls._get_items(existing_ids)
 
 
 class PlaywrightVacancyScraper(Scraper, PlaywrightScraperMixin, ABC):
@@ -140,9 +143,9 @@ class PlaywrightVacancyScraper(Scraper, PlaywrightScraperMixin, ABC):
         return await cls.get_vacancy(item_id)
 
     @classmethod
-    async def collect(cls) -> list[VacancyDTO]:
+    async def collect(cls, existing_ids: set[int]) -> list[VacancyDTO]:
         async with cls._browser_session():
-            return await cls._get_items()
+            return await cls._get_items(existing_ids)
 
 
 class RequestsVacancyScraper(Scraper, ABC):

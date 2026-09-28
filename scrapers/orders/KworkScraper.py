@@ -1,6 +1,7 @@
 import re
 import time
 from datetime import datetime, timedelta
+from typing import ClassVar
 
 from playwright.async_api import Page, TimeoutError as PlaywrightTimeoutError
 from typing_extensions import override
@@ -14,6 +15,7 @@ logger = get_logger(__name__)
 
 
 class KworkScraper(PlaywrightOrderScraper):
+    platform: ClassVar[str] = "kwork"
     orders_list_url = "https://kwork.ru/projects?c=11&page={page}"
     order_url = "https://kwork.ru/projects/{order_id}/view"
 
@@ -131,13 +133,13 @@ class KworkScraper(PlaywrightOrderScraper):
             publication_timestamp=publication_timestamp,
 
             order_id=order_id,
-            platform="kwork",
+            platform=cls.platform,
             href=cls.order_url.format(order_id=order_id),
 
             customer=CustomerDTO(
                 name=(await customer.inner_text()).strip(),
                 href=await customer.get_attribute("href"),
-                platform="kwork"
+                platform=cls.platform
             ),
             price=int(price.replace("₽", "").replace(" ", "").strip()) if price else None,
         )

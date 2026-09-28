@@ -1,3 +1,5 @@
+from typing import ClassVar
+
 from sqlalchemy import select
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio.session import AsyncSession
@@ -5,15 +7,19 @@ from sqlalchemy.ext.asyncio.session import AsyncSession
 from scrapers.dto.OrderDTO import OrderDTO
 
 from db.engine import request
+from db.models.BaseModels import BaseModel
 
 from db.models.CustomerModel import CustomerModel
 from db.models.OrderModel import OrderModel
 from logging_config import get_logger
+from repositories.BaseRepository import BaseRepository
 
 logger = get_logger(__name__)
 
 
-class OrdersRepository:
+class OrdersRepository(BaseRepository[OrderModel]):
+    model: ClassVar[type[BaseModel]] = OrderModel
+
     @staticmethod
     @request
     async def get_or_create_customers(entities: list[OrderDTO], session: AsyncSession) -> dict[tuple[str, str], int]:

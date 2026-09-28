@@ -1,5 +1,5 @@
 import re
-from typing import override
+from typing import ClassVar, override
 
 from playwright.async_api import Page
 
@@ -12,6 +12,7 @@ logger = get_logger(__name__)
 
 
 class HhScraper(PlaywrightVacancyScraper):
+    platform: ClassVar[str] = "hh"
     vacancy_list_url = "https://hh.ru/search/vacancy?text=developer&area=1"  # text is keyword
     vacancy_url = "https://hh.ru/vacancy/{vacancy_id}"
 
@@ -94,7 +95,7 @@ class HhScraper(PlaywrightVacancyScraper):
             place=await place.inner_text() if await place.count() > 0 else None,
             grade=grades[await page.locator('span[data-qa="vacancy-experience"]').inner_text()],
             format=(await work_format.inner_text()).replace("Формат работы: ", "") if await work_format.count() == 1 else None,
-            platform="hh",
+            platform=cls.platform,
             vacancy_id=vacancy_id,
             href=cls.vacancy_url.format(vacancy_id=vacancy_id),
             skills=[await widget.inner_text() for widget in skills],

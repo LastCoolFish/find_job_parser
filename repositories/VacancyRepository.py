@@ -1,3 +1,5 @@
+from typing import ClassVar
+
 from sqlalchemy import select
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio.session import AsyncSession
@@ -5,18 +7,20 @@ from sqlalchemy.ext.asyncio.session import AsyncSession
 from scrapers.dto.VacancyDTO import VacancyDTO
 
 from db.engine import request
+from db.models.BaseModels import BaseModel
 
 from db.models.CompanyModel import CompanyModel
 from db.models.SkillModel import SkillModel
 from db.models.VacancyModel import VacancyModel
 from db.models.VacancySkillModel import VacancySkillModel
 from logging_config import get_logger
+from repositories.BaseRepository import BaseRepository
 
 logger = get_logger(__name__)
 
 
-class VacancyRepository:
-    # List of websites from which data is being scraped
+class VacancyRepository(BaseRepository[VacancyModel]):
+    model: ClassVar[type[BaseModel]] = VacancyModel
 
     @staticmethod
     @request
