@@ -9,6 +9,7 @@ from scrapers.orders.FlScraper import FlScraper
 from scrapers.orders.KworkScraper import KworkScraper
 from scrapers.vacancies.HabrScraper import HabrScraper
 from scrapers.vacancies.HhScraper import HhScraper
+from scrapers.vacancies.HirifyScraper import HirifyScraper
 from services.BaseService import BaseService
 from services.OrderService import OrderService
 from services.VacancyService import VacancyService
@@ -18,7 +19,7 @@ logger = get_logger(__name__)
 
 SERVICES: tuple[BaseService, ...] = (
     OrderService(Collector([FlScraper, KworkScraper]), OrdersRepository),
-    VacancyService(Collector([HabrScraper, HhScraper]), VacancyRepository),
+    VacancyService(Collector([HabrScraper, HhScraper, HirifyScraper]), VacancyRepository),
 )
 
 
