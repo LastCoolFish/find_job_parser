@@ -148,6 +148,30 @@ class PlaywrightVacancyScraper(Scraper, PlaywrightScraperMixin, ABC):
             return await cls._get_items(existing_ids)
 
 
+class RequestsOrderScraper(Scraper, ABC):
+    headers = headers
+
+    @classmethod
+    @abstractmethod
+    async def get_orders_id(cls) -> list[int]:
+        ...
+
+    @classmethod
+    @abstractmethod
+    async def get_order(cls, order_id: int) -> OrderDTO:
+        ...
+
+    @classmethod
+    async def _get_ids(cls) -> list[int]:
+        logger.info("Start get orders id")
+        return await cls.get_orders_id()
+
+    @classmethod
+    async def _get_item(cls, item_id: int) -> OrderDTO:
+        logger.info(f"Start get order {item_id}")
+        return await cls.get_order(item_id)
+
+
 class RequestsVacancyScraper(Scraper, ABC):
     headers = headers
 
